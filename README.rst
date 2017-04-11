@@ -4,8 +4,10 @@ Mariotov
 A basic Marionette client that can be used in an asyncio application.
 Also, a Molotov integration example.
 
-Example of a Molotov load test that uses it::
+Example of a Molotov load test that uses it:
 
+
+.. code-block:: python
 
     import os
     from mariotov import setup          # NOQA
