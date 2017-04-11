@@ -13,6 +13,10 @@ _FF_OPTIONS = '--marionette -new-instance --profile %s'
 _P = {}
 
 
+class MarionetteNotReady(Exception):
+    pass
+
+
 def _get_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -43,8 +47,23 @@ def start_firefox(worker_id):
     args = shlex.split(_RUN_FF + ' ' + _FF_OPTIONS % pref_dir)
     _P[worker_id] = port, subprocess.Popen(args, stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
-    # XXX should listen to the socket instead, until it's ready
-    time.sleep(5)
+
+    max_delay = 5
+    connected = False
+    while not connected:
+        start = time.time()
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            try:
+                sock.connect(('localhost', port))
+                connected = True
+            except socket.error:
+                if time.time() - start > max_delay:
+                    break
+                else:
+                    time.sleep(.5)
+
+    if not connected:
+        raise MarionetteNotReady(port)
     return port
 
 
