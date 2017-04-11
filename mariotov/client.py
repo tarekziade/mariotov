@@ -8,8 +8,7 @@ from functools import partial
 _PROTO = {'newSession': {'answer': True},
           'deleteSession': {'answer': True},
           'get': {'answer': False},
-          'refresh': {'answer': False}
-}
+          'refresh': {'answer': False}}
 
 
 class Marionette(object):
