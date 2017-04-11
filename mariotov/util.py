@@ -1,3 +1,4 @@
+import shutil
 import os
 import shlex
 import subprocess
@@ -29,7 +30,7 @@ def _get_port():
 
 
 def get_marionette_port(worker_id):
-    return _P[worker_id][0]
+    return _P[worker_id][1]
 
 
 def start_firefox(worker_id):
@@ -45,9 +46,10 @@ def start_firefox(worker_id):
             target.write(content)
 
     args = shlex.split(_RUN_FF + ' ' + _FF_OPTIONS % pref_dir)
-    _P[worker_id] = port, subprocess.Popen(args, stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE)
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
 
+    _P[worker_id] = pref_dir, port, proc
     max_delay = 5
     connected = False
     while not connected:
@@ -68,4 +70,5 @@ def start_firefox(worker_id):
 
 
 def stop_firefox(worker_id):
-    _P[worker_id][1].terminate()
+    _P[worker_id][-1].terminate()
+    shutil.rmtree(_P[worker_id][0])
